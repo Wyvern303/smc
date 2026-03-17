@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Package Master v4</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --accent: #f1f5f9;
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            width: 100%; 
+            max-width: 950px;
+            margin: auto;
+            box-sizing: border-box;
+        }
+
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.4rem; text-align: center; }
+
+        .input-section {
+            background: var(--accent);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 600px) { .input-section { grid-template-columns: 1fr 1fr; } }
+
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #64748b; }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+
+        th { 
+            background-color: var(--accent); 
+            color: #475569; 
+            text-align: left; 
+            padding: 12px; 
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+
+        .pkg-id { font-weight: 800; color: var(--primary); }
+        .price-tag { font-weight: 700; color: var(--success); }
+        
+        .copy-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:active { background: #cbd5e1; }
+
+        .logic-tag { 
+            font-size: 0.72rem; 
+            color: #64748b; 
+            background: #f1f5f9; 
+            padding: 4px 8px; 
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Package Price Dashboard</h2>
+    
+    <div class="input-section">
+        <div>
+            <label>Price for 1000 Coins:</label>
+            <input type="number" id="coinPrice" placeholder="Enter rate..." oninput="calculate()">
+        </div>
+        <div>
+            <label>Quick Search:</label>
+            <input type="text" id="search" placeholder="Search (e.g. 9288)" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Package</th>
+                    <th>Coins</th>
+                    <th>Retail</th>
+                    <th>+5% Profit</th>
+                    <th>Logic</th>
+                </tr>
+            </thead>
+            <tbody id="output"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // FINAL AUDITED DATA
+    const packages = [
+        { id: "WP", coins: 76, logic: "Special" },
+        { id: "D86", coins: 61.5, logic: "BASE" },
+        { id: "D172", coins: 122, logic: "BASE" },
+        { id: "D257", coins: 176.7, logic: "BASE" },
+        { id: "D343", coins: 244, logic: "2 × D172" },
+        { id: "D429", coins: 298.7, logic: "D172 + D257" },
+        { id: "D514", coins: 353.4, logic: "2 × D257" },
+        { id: "D600", coins: 420.7, logic: "2 × D172 + D257" },
+        { id: "D706", coins: 480, logic: "BASE" },
+        { id: "D878", coins: 602, logic: "D706 + D172" },
+        { id: "D963", coins: 656.7, logic: "D706 + D257" },
+        { id: "D1049", coins: 718.2, logic: "D706 + D172 + D86" },
+        { id: "D1135", coins: 778.7, logic: "D706 + D172 + D257" },
+        { id: "D1412", coins: 960, logic: "2 × D706" },
+        { id: "D2195", coins: 1453, logic: "BASE" },
+        { id: "D3688", coins: 2424, logic: "BASE" },
+        { id: "D4394", coins: 3013.4, logic: "4 × D706 + D172 + D86" },
+        { id: "D5532", coins: 3660, logic: "BASE" },
+        { id: "D9288", coins: 6079, logic: "BASE" }
+    ];
+
+    function copyToClipboard(val) {
+        navigator.clipboard.writeText(val);
+        alert("Copied: $" + val);
+    }
+
+    function calculate() {
+        const rate = document.getElementById('coinPrice').value;
+        const filter = document.getElementById('search').value.toLowerCase();
+        const tbody = document.getElementById('output');
+        
+        tbody.innerHTML = '';
+        if (!rate || rate <= 0) return;
+
+        const perCoin = rate / 1000;
+
+        packages.filter(p => p.id.toLowerCase().includes(filter)).forEach(pkg => {
+            const retailVal = (pkg.coins * perCoin).toFixed(2);
+            const profitVal = (retailVal * 1.05).toFixed(2);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="pkg-id">${pkg.id}</td>
+                    <td>${pkg.coins}</td>
+                    <td>$${retailVal}</td>
+                    <td class="price-tag">
+                        $${profitVal}
+                        <button class="copy-btn" onclick="copyToClipboard('${profitVal}')">COPY</button>
+                    </td>
+                    <td><span class="logic-tag">${pkg.logic}</span></td>
+                </tr>
+            `;
+        });
+    }
+</script>
+
+</body>
+</html>
