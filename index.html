@@ -34,7 +34,8 @@
         .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--bat-accent); padding-bottom: 15px; }
         h2 { margin: 0; color: var(--bat-highlight); font-family: 'Orbitron', sans-serif; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 12px; }
 
-        .input-section {
+        /* --- CONTROL CENTER (RATE + CALCULATOR) --- */
+        .control-center {
             background: rgba(255,255,255,0.02);
             border: 1px solid var(--bat-accent);
             padding: 20px;
@@ -62,7 +63,6 @@
             border-radius: 2px;
         }
 
-        /* Tactical Search Button */
         .scan-btn {
             width: 100%;
             padding: 15px;
@@ -77,16 +77,25 @@
             transition: all 0.3s ease;
         }
 
-        .scan-btn:hover { background: var(--bat-highlight); color: #000; }
-        .scan-btn:active { transform: scale(0.98); }
+        .scan-btn:active { background: var(--bat-highlight); color: #000; }
 
-        /* --- NON-TABLE GRID (SOLID LINES) --- */
-        .wyvern-grid {
-            border: 1px solid var(--bat-accent);
-            background: #000;
-            margin-top: 10px;
+        /* --- CALC RESULT OVERLAY --- */
+        .calc-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(0, 255, 136, 0.05);
+            padding: 15px;
+            border: 1px solid var(--bat-success);
+            margin-top: 15px;
+            text-align: center;
         }
 
+        .res-label { font-size: 0.6rem; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+        .res-val { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--bat-success); }
+
+        /* --- GRID SYSTEM --- */
+        .wyvern-grid { border: 1px solid var(--bat-accent); background: #000; margin-top: 10px; }
         .grid-header {
             display: grid;
             grid-template-columns: 1.8fr 0.8fr 1fr 1.4fr;
@@ -95,7 +104,6 @@
             padding: 12px;
             font-weight: 700;
             font-size: 0.75rem;
-            text-transform: uppercase;
             color: var(--bat-highlight);
         }
 
@@ -108,7 +116,6 @@
         }
 
         .grid-row.is-base { background: rgba(255,255,255,0.03); }
-
         .pkg-id { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--bat-highlight); font-size: 1.1rem; }
         .price-tag { color: var(--bat-success); font-weight: 700; font-size: 1.1rem; text-align: right; display: flex; align-items: center; justify-content: flex-end; }
         
@@ -116,15 +123,12 @@
             background: transparent; color: var(--bat-highlight); border: 1px solid var(--bat-highlight);
             padding: 5px 10px; font-size: 0.6rem; cursor: pointer;
             font-family: 'Orbitron', sans-serif; margin-left: 10px;
-            text-transform: uppercase;
         }
 
         .logic-tag { font-size: 0.65rem; color: #64748b; display: block; text-transform: uppercase; margin-top: 4px; }
 
         @media (max-width: 500px) {
             .grid-header, .grid-row { grid-template-columns: 1.5fr 0.7fr 0.8fr 1.5fr; font-size: 0.8rem; }
-            .pkg-id { font-size: 0.9rem; }
-            .price-tag { font-size: 0.9rem; }
             h2 { font-size: 1.5rem; letter-spacing: 6px; }
         }
     </style>
@@ -136,18 +140,30 @@
         <h2>WYVERN</h2>
     </div>
     
-    <div class="input-section">
+    <div class="control-center">
         <div class="input-grid">
             <div>
-                <label>Intel: 1000 Coins Rate</label>
-                <input type="number" id="coinPrice" placeholder="SYSTEM_IDLE">
+                <label>Master Intel: 1000 Coins Rate</label>
+                <input type="number" id="coinPrice" placeholder="E.G. 15.50">
             </div>
             <div>
-                <label>Filter Database</label>
-                <input type="text" id="search" placeholder="SEARCH_PKG...">
+                <label>Custom Coin Amount (Calculator)</label>
+                <input type="number" id="manualCoins" placeholder="E.G. 5000">
             </div>
         </div>
-        <button class="scan-btn" onclick="calculate()">Initialize Scan</button>
+        
+        <button class="scan-btn" onclick="executeSystem()">Initialize Tactical Scan</button>
+
+        <div class="calc-display" id="calcResult" style="display: none;">
+            <div>
+                <div class="res-label">Retail Cost</div>
+                <div class="res-val" id="resRetail">$--</div>
+            </div>
+            <div>
+                <div class="res-label">Tactical (+5%)</div>
+                <div class="res-val" id="resTactical">$--</div>
+            </div>
+        </div>
     </div>
 
     <div class="wyvern-grid">
@@ -196,35 +212,38 @@
         }, 800);
     }
 
-    function calculate() {
+    function executeSystem() {
         const rate = document.getElementById('coinPrice').value;
-        const filter = document.getElementById('search').value.toLowerCase();
+        const customAmount = document.getElementById('manualCoins').value;
         const outputContainer = document.getElementById('output');
+        const calcDisplay = document.getElementById('calcResult');
         
-        outputContainer.innerHTML = '';
-        if (!rate || rate <= 0) {
-            alert("SYSTEM ERROR: ENTER COIN RATE TO PROCEED.");
-            return;
-        }
-        
-        const perCoin = rate / 1000;
-        const filtered = packages.filter(p => p.id.toLowerCase().includes(filter));
+        if (!rate || rate <= 0) return alert("SYSTEM ERROR: ENTER MASTER RATE.");
 
-        filtered.forEach(pkg => {
+        const perCoin = rate / 1000;
+
+        // 1. Run Manual Calculator if amount exists
+        if (customAmount && customAmount > 0) {
+            const retail = (customAmount * perCoin).toFixed(2);
+            const tactical = (retail * 1.05).toFixed(2);
+            document.getElementById('resRetail').innerText = "$" + retail;
+            document.getElementById('resTactical').innerText = "$" + tactical;
+            calcDisplay.style.display = 'grid';
+        } else {
+            calcDisplay.style.display = 'none';
+        }
+
+        // 2. Refresh Database Scan
+        outputContainer.innerHTML = '';
+        packages.forEach(pkg => {
             const retailVal = (pkg.coins * perCoin).toFixed(2);
             const profitVal = (retailVal * 1.05).toFixed(2);
             outputContainer.innerHTML += `
                 <div class="grid-row ${pkg.isBase ? 'is-base' : ''}">
-                    <div>
-                        <span class="pkg-id">${pkg.id}</span>
-                        <span class="logic-tag">${pkg.logic}</span>
-                    </div>
+                    <div><span class="pkg-id">${pkg.id}</span><span class="logic-tag">${pkg.logic}</span></div>
                     <div>${pkg.coins}</div>
                     <div>$${retailVal}</div>
-                    <div class="price-tag">
-                        $${profitVal}
-                        <button class="copy-btn" onclick="copyVal('${profitVal}', this)">Copy</button>
-                    </div>
+                    <div class="price-tag">$${profitVal}<button class="copy-btn" onclick="copyVal('${profitVal}', this)">Copy</button></div>
                 </div>
             `;
         });
