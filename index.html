@@ -3,191 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Package Master v4</title>
+    <title>Wyvern | OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --success: #16a34a;
-            --bg: #f8fafc;
-            --text: #1e293b;
-            --accent: #f1f5f9;
+            --bat-black: #050505;
+            --bat-gray: #121213;
+            --bat-silver: #cbd5e1;
+            --bat-accent: #2d3748;
+            --bat-highlight: #ffffff;
+            --bat-success: #00ff88;
         }
 
         body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text);
-            margin: 0;
-            padding: 10px;
+            font-family: 'Roboto Condensed', sans-serif; 
+            background-color: var(--bat-black); 
+            color: var(--bat-silver);
+            margin: 0; padding: 10px;
         }
 
         .container { 
-            background: white; 
+            background: var(--bat-gray); 
             padding: 20px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            width: 100%; 
-            max-width: 950px;
-            margin: auto;
-            box-sizing: border-box;
+            border-radius: 4px; 
+            border: 1px solid var(--bat-accent);
+            width: 100%; max-width: 850px; margin: auto; box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
         }
 
-        h2 { margin-top: 0; color: var(--primary); font-size: 1.4rem; text-align: center; }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--bat-accent); padding-bottom: 15px; }
+        h2 { margin: 0; color: var(--bat-highlight); font-family: 'Orbitron', sans-serif; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 12px; }
 
         .input-section {
-            background: var(--accent);
-            padding: 15px;
-            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--bat-accent);
+            padding: 20px;
             margin-bottom: 20px;
+        }
+
+        .input-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 15px;
+            margin-bottom: 15px;
         }
 
-        @media (min-width: 600px) { .input-section { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 600px) { .input-grid { grid-template-columns: 1fr 1fr; } }
 
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #64748b; }
+        label { font-weight: 700; font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; display: block; }
         
         input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 2px solid #cbd5e1; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            box-sizing: border-box;
-            outline: none;
+            width: 100%; padding: 14px; 
+            border: 1px solid var(--bat-accent); 
+            background: #000;
+            color: #fff;
+            font-size: 16px; box-sizing: border-box; outline: none;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 2px;
         }
 
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        /* Tactical Search Button */
+        .scan-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            color: var(--bat-highlight);
+            border: 1px solid var(--bat-highlight);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        .scan-btn:hover { background: var(--bat-highlight); color: #000; }
+        .scan-btn:active { transform: scale(0.98); }
 
-        th { 
-            background-color: var(--accent); 
-            color: #475569; 
-            text-align: left; 
-            padding: 12px; 
+        /* --- NON-TABLE GRID (SOLID LINES) --- */
+        .wyvern-grid {
+            border: 1px solid var(--bat-accent);
+            background: #000;
+            margin-top: 10px;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 1.8fr 0.8fr 1fr 1.4fr;
+            background: #000;
+            border-bottom: 2px solid var(--bat-accent);
+            padding: 12px;
+            font-weight: 700;
             font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--bat-highlight);
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1.8fr 0.8fr 1fr 1.4fr;
+            padding: 15px 12px;
+            border-bottom: 1px solid var(--bat-accent);
+            align-items: center;
+        }
+
+        .grid-row.is-base { background: rgba(255,255,255,0.03); }
+
+        .pkg-id { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--bat-highlight); font-size: 1.1rem; }
+        .price-tag { color: var(--bat-success); font-weight: 700; font-size: 1.1rem; text-align: right; display: flex; align-items: center; justify-content: flex-end; }
+        
+        .copy-btn {
+            background: transparent; color: var(--bat-highlight); border: 1px solid var(--bat-highlight);
+            padding: 5px 10px; font-size: 0.6rem; cursor: pointer;
+            font-family: 'Orbitron', sans-serif; margin-left: 10px;
             text-transform: uppercase;
         }
 
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .logic-tag { font-size: 0.65rem; color: #64748b; display: block; text-transform: uppercase; margin-top: 4px; }
 
-        .pkg-id { font-weight: 800; color: var(--primary); }
-        .price-tag { font-weight: 700; color: var(--success); }
-        
-        .copy-btn {
-            background: #e2e8f0;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-left: 8px;
-            transition: background 0.2s;
-        }
-
-        .copy-btn:active { background: #cbd5e1; }
-
-        .logic-tag { 
-            font-size: 0.72rem; 
-            color: #64748b; 
-            background: #f1f5f9; 
-            padding: 4px 8px; 
-            border-radius: 4px;
+        @media (max-width: 500px) {
+            .grid-header, .grid-row { grid-template-columns: 1.5fr 0.7fr 0.8fr 1.5fr; font-size: 0.8rem; }
+            .pkg-id { font-size: 0.9rem; }
+            .price-tag { font-size: 0.9rem; }
+            h2 { font-size: 1.5rem; letter-spacing: 6px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Package Price Dashboard</h2>
+    <div class="header">
+        <h2>WYVERN</h2>
+    </div>
     
     <div class="input-section">
-        <div>
-            <label>Price for 1000 Coins:</label>
-            <input type="number" id="coinPrice" placeholder="Enter rate..." oninput="calculate()">
+        <div class="input-grid">
+            <div>
+                <label>Intel: 1000 Coins Rate</label>
+                <input type="number" id="coinPrice" placeholder="SYSTEM_IDLE">
+            </div>
+            <div>
+                <label>Filter Database</label>
+                <input type="text" id="search" placeholder="SEARCH_PKG...">
+            </div>
         </div>
-        <div>
-            <label>Quick Search:</label>
-            <input type="text" id="search" placeholder="Search (e.g. 9288)" oninput="calculate()">
-        </div>
+        <button class="scan-btn" onclick="calculate()">Initialize Scan</button>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Package</th>
-                    <th>Coins</th>
-                    <th>Retail</th>
-                    <th>+5% Profit</th>
-                    <th>Logic</th>
-                </tr>
-            </thead>
-            <tbody id="output"></tbody>
-        </table>
+    <div class="wyvern-grid">
+        <div class="grid-header">
+            <div>Build</div>
+            <div>Units</div>
+            <div>Base</div>
+            <div style="text-align: right;">Tactical (+5%)</div>
+        </div>
+        <div id="output">
+            </div>
     </div>
 </div>
 
 <script>
-    // FINAL AUDITED DATA
     const packages = [
-        { id: "WP", coins: 76, logic: "Special" },
-        { id: "D86", coins: 61.5, logic: "BASE" },
-        { id: "D172", coins: 122, logic: "BASE" },
-        { id: "D257", coins: 176.7, logic: "BASE" },
-        { id: "D343", coins: 244, logic: "2 × D172" },
-        { id: "D429", coins: 298.7, logic: "D172 + D257" },
-        { id: "D514", coins: 353.4, logic: "2 × D257" },
-        { id: "D600", coins: 420.7, logic: "2 × D172 + D257" },
-        { id: "D706", coins: 480, logic: "BASE" },
-        { id: "D878", coins: 602, logic: "D706 + D172" },
-        { id: "D963", coins: 656.7, logic: "D706 + D257" },
-        { id: "D1049", coins: 718.2, logic: "D706 + D172 + D86" },
-        { id: "D1135", coins: 778.7, logic: "D706 + D172 + D257" },
-        { id: "D1412", coins: 960, logic: "2 × D706" },
-        { id: "D2195", coins: 1453, logic: "BASE" },
-        { id: "D3688", coins: 2424, logic: "BASE" },
-        { id: "D4394", coins: 3013.4, logic: "4 × D706 + D172 + D86" },
-        { id: "D5532", coins: 3660, logic: "BASE" },
-        { id: "D9288", coins: 6079, logic: "BASE" }
+        { id: "WP", coins: 76, logic: "Special Protocol", isBase: true },
+        { id: "D86", coins: 61.5, logic: "CORE_UNIT", isBase: true },
+        { id: "D172", coins: 122, logic: "CORE_UNIT", isBase: true },
+        { id: "D257", coins: 176.7, logic: "CORE_UNIT", isBase: true },
+        { id: "D343", coins: 244, logic: "2 × D172", isBase: false },
+        { id: "D429", coins: 298.7, logic: "D172 + D257", isBase: false },
+        { id: "D514", coins: 353.4, logic: "2 × D257", isBase: false },
+        { id: "D600", coins: 420.7, logic: "2 × D172 + D257", isBase: false },
+        { id: "D706", coins: 480, logic: "CORE_UNIT", isBase: true },
+        { id: "D878", coins: 602, logic: "D706 + D172", isBase: false },
+        { id: "D963", coins: 656.7, logic: "D706 + D257", isBase: false },
+        { id: "D1049", coins: 718.2, logic: "D706 + D172 + D86", isBase: false },
+        { id: "D1135", coins: 778.7, logic: "D706 + D172 + D257", isBase: false },
+        { id: "D1412", coins: 960, logic: "2 × D706", isBase: false },
+        { id: "D2195", coins: 1453, logic: "CORE_UNIT", isBase: true },
+        { id: "D3688", coins: 2424, logic: "CORE_UNIT", isBase: true },
+        { id: "D4394", coins: 2904, logic: "D3688 + D706", isBase: false },
+        { id: "D5532", coins: 3660, logic: "CORE_UNIT", isBase: true },
+        { id: "D9288", coins: 6079, logic: "CORE_UNIT", isBase: true }
     ];
 
-    function copyToClipboard(val) {
+    function copyVal(val, btn) {
         navigator.clipboard.writeText(val);
-        alert("Copied: $" + val);
+        const originalText = btn.innerText;
+        btn.innerText = "COPIED";
+        btn.style.background = "#fff"; btn.style.color = "#000";
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = "transparent"; btn.style.color = "#fff";
+        }, 800);
     }
 
     function calculate() {
         const rate = document.getElementById('coinPrice').value;
         const filter = document.getElementById('search').value.toLowerCase();
-        const tbody = document.getElementById('output');
+        const outputContainer = document.getElementById('output');
         
-        tbody.innerHTML = '';
-        if (!rate || rate <= 0) return;
-
+        outputContainer.innerHTML = '';
+        if (!rate || rate <= 0) {
+            alert("SYSTEM ERROR: ENTER COIN RATE TO PROCEED.");
+            return;
+        }
+        
         const perCoin = rate / 1000;
+        const filtered = packages.filter(p => p.id.toLowerCase().includes(filter));
 
-        packages.filter(p => p.id.toLowerCase().includes(filter)).forEach(pkg => {
+        filtered.forEach(pkg => {
             const retailVal = (pkg.coins * perCoin).toFixed(2);
             const profitVal = (retailVal * 1.05).toFixed(2);
-
-            tbody.innerHTML += `
-                <tr>
-                    <td class="pkg-id">${pkg.id}</td>
-                    <td>${pkg.coins}</td>
-                    <td>$${retailVal}</td>
-                    <td class="price-tag">
+            outputContainer.innerHTML += `
+                <div class="grid-row ${pkg.isBase ? 'is-base' : ''}">
+                    <div>
+                        <span class="pkg-id">${pkg.id}</span>
+                        <span class="logic-tag">${pkg.logic}</span>
+                    </div>
+                    <div>${pkg.coins}</div>
+                    <div>$${retailVal}</div>
+                    <div class="price-tag">
                         $${profitVal}
-                        <button class="copy-btn" onclick="copyToClipboard('${profitVal}')">COPY</button>
-                    </td>
-                    <td><span class="logic-tag">${pkg.logic}</span></td>
-                </tr>
+                        <button class="copy-btn" onclick="copyVal('${profitVal}', this)">Copy</button>
+                    </div>
+                </div>
             `;
         });
     }
 </script>
-
 </body>
 </html>
